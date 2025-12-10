@@ -4,7 +4,6 @@ import { db } from "./db.js";
 
 const app = express();
 
-// CORS permisivo - acepta de cualquier origen
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -12,15 +11,14 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // IMPORTANTE: para las fotos en base64
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Log para ver las peticiones
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
 
-// Ruta de prueba
 app.get("/", (req, res) => {
   res.json({ message: "API funcionando desde cualquier red" });
 });
@@ -28,16 +26,16 @@ app.get("/", (req, res) => {
 // Importa tus rutas
 import usersRoutes from "./routes/users.js";
 import contactsRoutes from "./routes/contacts.js";
+import panicRoutes from "./routes/panic.js"; // <-- ASEGÚRATE DE TENER ESTO
 
 app.use("/users", usersRoutes);
 app.use("/contacts", contactsRoutes);
+app.use("/panic", panicRoutes); // <-- Y ESTO
 
 const PORT = 3000;
 
-// Escuchar en todas las interfaces (0.0.0.0)
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en todas las interfaces`);
   console.log(`📍 Local: http://localhost:${PORT}`);
   console.log(`🌐 Red local: http://[tu-ip-local]:${PORT}`);
-  console.log(`🌍 Accesible desde cualquier red (si configuras port forwarding)`);
 });
